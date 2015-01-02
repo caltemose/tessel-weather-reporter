@@ -1,3 +1,12 @@
+var prefs = {
+    decimalPlaces: 2,
+    timeout: 5 * 1000,
+    host: '192.168.1.149',
+    port: 3000,
+    path: '/api/weather'
+}
+
+
 var tessel = require('tessel');
 var climatelib = require('climate-si7005');
 var climate = climatelib.use(tessel.port['A']);
@@ -14,13 +23,10 @@ var readClimate = function () {
             console.log(err);
             return;
         }
-
-        var handicapF = 9.5; // subtract from reading b/c of heated climate module
     
-        o.temp = {
-            c: tempC.toFixed(2)
-        };
-
+        o.temp = {};
+        o.temp.c = tempC;
+        
         // get fahrenheit temperature (lazy, yes)
         climate.readTemperature('f', function (err, tempF) {
             if (err) {
@@ -29,7 +35,7 @@ var readClimate = function () {
                 return;
             }
 
-            o.temp.f = tempF.toFixed(2);
+            o.temp.f = tempF;
 
             // get humidity
             climate.readHumidity(function (err, humid) {
@@ -39,7 +45,7 @@ var readClimate = function () {
                     return;
                 }
 
-                o.humid = humid.toFixed(2);
+                o.humid = humid;
 
                 o.date = new Date();
                 report(o);
@@ -49,9 +55,8 @@ var readClimate = function () {
 };
 
 var report = function (o) {
-    //console.log(o, "\n");
     saveToDb(o);
-    setTimeout(readClimate, 15*1000);
+    setTimeout(readClimate, prefs.timeout);
 };
 
 var saveToDb = function (o) {
@@ -65,9 +70,9 @@ var saveToDb = function (o) {
 
     var options = {
         method : 'POST',
-        host : '192.168.1.149',
-        port : '3000',
-        path : '/api/weather',
+        host : prefs.host,
+        port : prefs.port,
+        path : prefs.path,
         headers: headers
     };
 
@@ -81,7 +86,7 @@ var saveToDb = function (o) {
         });
 
         res.on('end', function() {
-            console.log('data written to:', options.path, JSON.parse(responseString));
+            console.log('data saved at:', o.date);
         });
     });
 
