@@ -2,6 +2,7 @@ var tessel = require('tessel');
 var climatelib = require('climate-si7005');
 var climate = climatelib.use(tessel.port['A']);
 var http = require('http');
+var led = require('tessel-led');
 
 var PREFS = {
     location: 'home-dining-table',
@@ -9,17 +10,21 @@ var PREFS = {
     host: '192.168.1.147',
     port: 3000,
     path: '/api/weather'
-}
+};
 
 var readClimate = function () {
-    console.log('readClimate()');
+    resetLEDs();
+    
     var o = {};
   
     // get celsius temperature
     climate.readTemperature(function (err, tempC) {
+        led.green.hide();
+
         if (err) {
             console.log('TESSEL TEMP C ERROR');
             console.log(err);
+            led.red.show();
             return;
         }
     
@@ -29,9 +34,12 @@ var readClimate = function () {
 
         // get fahrenheit temperature (lazy, yes)
         climate.readTemperature('f', function (err, tempF) {
+            led.green.hide();
+
             if (err) {
                 console.log('TESSEL TEMP F ERROR');
                 console.log(err);
+                led.red.show();
                 return;
             }
 
@@ -39,9 +47,12 @@ var readClimate = function () {
 
             // get humidity
             climate.readHumidity(function (err, humid) {
+                led.green.hide();
+
                 if (err) {
                     console.log('TESSEL HUMID ERROR');
                     console.log(err);
+                    led.red.show();
                     return;
                 }
 
@@ -78,23 +89,27 @@ var saveToDb = function (o) {
         var responseString = ''; 
         
         res.on('data', function (data) {
+            console.log('data received');
             responseString += data;
         });
 
         res.on('end', function () {
+            led.green.flash(1, 500);
             console.log('data written to:', options.path, JSON.parse(responseString));
             reset();
         });
     });
 
     request.on('error', function (err) {
-        console.log(err);
+        led.red.show();
+        console.log('request error', err);
         reset();
     });
 
-    console.log('write');
-    // send POST request 
+    // send POST request + flash blue LED
+    led.blue.flash(1, 250);
     request.write(postDataString);
+    
     request.end();
 };
 
@@ -102,4 +117,12 @@ var reset = function () {
     setTimeout(readClimate, PREFS.timeout);
 };
 
+var resetLEDs = function () {
+    led.amber.hide();
+    led.blue.hide();
+    led.green.hide();
+    led.red.hide();
+};
+
 climate.on('ready', readClimate);
+
