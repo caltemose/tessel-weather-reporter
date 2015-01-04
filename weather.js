@@ -12,6 +12,7 @@ var climatelib = require('climate-si7005');
 var climate = climatelib.use(tessel.port['A']);
 var http = require('http');
 var led = require('tessel-led');
+var wifi = require('wifi-cc3000');
 
 
 var readClimate = function () {
@@ -124,5 +125,8 @@ var resetLEDs = function () {
     led.red.hide();
 };
 
-climate.on('ready', readClimate);
+// climate.on('ready', readClimate);
 
+wifi.on('connect', function (data) {
+    readClimate();
+});
