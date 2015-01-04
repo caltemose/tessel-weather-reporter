@@ -1,9 +1,3 @@
-var tessel = require('tessel');
-var climatelib = require('climate-si7005');
-var climate = climatelib.use(tessel.port['A']);
-var http = require('http');
-var led = require('tessel-led');
-
 var PREFS = {
     location: 'home-dining-table',
     timeout: 5*1000,
@@ -11,6 +5,14 @@ var PREFS = {
     port: 3000,
     path: '/api/weather'
 };
+
+// dependencies
+var tessel = require('tessel');
+var climatelib = require('climate-si7005');
+var climate = climatelib.use(tessel.port['A']);
+var http = require('http');
+var led = require('tessel-led');
+
 
 var readClimate = function () {
     resetLEDs();
@@ -89,13 +91,11 @@ var saveToDb = function (o) {
         var responseString = ''; 
         
         res.on('data', function (data) {
-            console.log('data received');
             responseString += data;
         });
 
         res.on('end', function () {
             led.green.flash(1, 500);
-            console.log('data written to:', options.path, JSON.parse(responseString));
             reset();
         });
     });
@@ -109,7 +109,7 @@ var saveToDb = function (o) {
     // send POST request + flash blue LED
     led.blue.flash(1, 250);
     request.write(postDataString);
-    
+
     request.end();
 };
 
