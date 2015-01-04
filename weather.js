@@ -1,3 +1,4 @@
+// config
 var PREFS = {
     location: 'home-dining-table',
     timeout: 5*1000,
