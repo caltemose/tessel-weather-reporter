@@ -1,7 +1,7 @@
 // config
 var PREFS = {
-    location: 'home-dining-table',
-    timeout: 5*1000,
+    location: 'home-testing',
+    timeout: 60*1000,
     host: '192.168.1.147',
     port: 3000,
     path: '/api/weather'
@@ -63,7 +63,7 @@ var readClimate = function () {
                 o.humid = humid;
 
                 o.location = PREFS.location;
-                o.date = new Date();
+
                 saveToDb(o);
             });
         })
@@ -105,6 +105,7 @@ var saveToDb = function (o) {
     request.on('error', function (err) {
         led.red.show();
         console.log('request error', err);
+        // @TODO should we reset wifi here?
         reset();
     });
 
