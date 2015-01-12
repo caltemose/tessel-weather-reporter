@@ -1,6 +1,6 @@
 // config
 var PREFS = {
-    location: 'home-testing',
+    location: 'home-top-porch',
     timeout: 60*1000,
     host: '192.168.1.147',
     port: 3000,
@@ -17,6 +17,7 @@ var wifi = require('wifi-cc3000');
 
 
 var readClimate = function () {
+    console.log('reading climate...');
     resetLEDs();
     
     var o = {};
@@ -97,6 +98,7 @@ var saveToDb = function (o) {
         });
 
         res.on('end', function () {
+            console.log('request results done.')
             led.green.flash(1, 500);
             reset();
         });
@@ -105,10 +107,10 @@ var saveToDb = function (o) {
     request.on('error', function (err) {
         led.red.show();
         console.log('request error', err);
-        // @TODO should we reset wifi here?
-        reset();
+        resetWifi();
     });
 
+    console.log('sending request...');
     // send POST request + flash blue LED
     led.blue.flash(1, 250);
     request.write(postDataString);
@@ -116,19 +118,28 @@ var saveToDb = function (o) {
     request.end();
 };
 
+var resetWifi = function () {
+    console.log('resetWifi()...');
+    led.green.show();
+    wifi.reset(function onWifiReset() {
+        led.green.hide();
+        console.log('wifi reset.');
+        reset();
+    });
+};
+
 var reset = function () {
+    console.log('reset() climate lookup');
     setTimeout(readClimate, PREFS.timeout);
 };
 
 var resetLEDs = function () {
-    led.amber.hide();
     led.blue.hide();
     led.green.hide();
     led.red.hide();
 };
 
-// climate.on('ready', readClimate);
-
 wifi.on('connect', function (data) {
+    console.log('wifi connected');
     readClimate();
 });
