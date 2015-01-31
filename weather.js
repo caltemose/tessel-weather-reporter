@@ -2,7 +2,7 @@
 var PREFS = {
     location: 'home-top-porch',
     timeout: 60*1000,
-    host: '192.168.1.147',
+    host: '192.168.1.115',
     port: 3000,
     path: '/api/weather'
 };
