@@ -2,7 +2,7 @@
 var PREFS = {
     location: 'home-top-porch',
     timeout: 60*1000,
-    host: '192.168.1.115',
+    host: '192.168.2.1',// '10.11.40.45',// 71 '192.168.1.115',
     port: 3000,
     path: '/api/weather'
 };
@@ -14,6 +14,7 @@ var climate = climatelib.use(tessel.port['A']);
 var http = require('http');
 var led = require('tessel-led');
 var wifi = require('wifi-cc3000');
+var id; // setInterval reference
 
 
 var readClimate = function () {
@@ -130,7 +131,16 @@ var resetWifi = function () {
 
 var reset = function () {
     console.log('reset() climate lookup');
-    setTimeout(readClimate, PREFS.timeout);
+    resetTimeout();
+    id = setTimeout(readClimate, PREFS.timeout);
+};
+
+var resetTimeout = function () {
+    if (id) {
+        console.log('clearing timeout');
+        clearTimeout(id);
+        id = null;
+    }
 };
 
 var resetLEDs = function () {
