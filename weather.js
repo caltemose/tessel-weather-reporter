@@ -1,8 +1,10 @@
 // config
 var PREFS = {
-    location: 'home-top-porch',
+    location: 'home-top-porch', // home
+    // location: 'work', // work
     timeout: 60*1000,
-    host: '192.168.2.1',// '10.11.40.45',// 71 '192.168.1.115',
+    host: '192.168.1.11', // home
+    // host: '192.168.2.1', // work
     port: 3000,
     path: '/api/weather'
 };
